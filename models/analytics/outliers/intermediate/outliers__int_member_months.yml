@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: outliers__int_member_months
+    description: "Intermediate model joining member months, patient demographics, and risk scores with population normalization."
+    columns:
+      - name: person_id
+        description: "Unique identifier for the person."
+      - name: member_id
+        description: "Unique identifier for the member."
+      - name: year
+        description: "Year extracted from year_month."
+      - name: year_month
+        description: "Year and month in YYYYMM format."
+      - name: sex
+        description: "Sex of the patient."
+      - name: race
+        description: "Race of the patient."
+      - name: state
+        description: "State of residence."
+      - name: age
+        description: "Age of the patient."
+      - name: age_group
+        description: "Age group of the patient."
+      - name: payment_year
+        description: "Payment year for risk score."
+      - name: v24_risk_score
+        description: "Version 24 risk score for the patient."
+      - name: population_normalized_risk_score
+        description: "Risk score normalized by the population annual average for the payment year."
