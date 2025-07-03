@@ -4,18 +4,18 @@
 }}
 
 select
-  mm.person_id,
-  mm.member_id,
-  cast({{ substring('mm.year_month', 1, 4) }} as integer) as year,
-  mm.year_month,
-  pt.sex,
-  pt.race,
-  pt.state,
-  pt.age,
-  pt.age_group,
-  rsk.payment_year,
-  rsk.v24_risk_score,
-  rsk.v24_risk_score / avg.annual_avg_risk_score as population_normalized_risk_score
+    mm.person_id
+  , mm.member_id
+  , cast({{ substring('mm.year_month', 1, 4) }} as integer) as year
+  , mm.year_month
+  , pt.sex
+  , pt.race
+  , pt.state
+  , pt.age
+  , pt.age_group
+  , rsk.payment_year
+  , rsk.v24_risk_score
+  , rsk.v24_risk_score / avg.annual_avg_risk_score as population_normalized_risk_score
 from {{ ref('core__member_months') }} mm
 left join {{ ref('core__patient') }} pt
   on mm.person_id = pt.person_id

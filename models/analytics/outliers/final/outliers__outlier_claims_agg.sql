@@ -4,10 +4,10 @@
 }}
 
 select
-  aca.*,
-  om.total_paid,
-  om.outlier_threshold,
-  om.total_members
+    aca.*
+  , om.total_paid
+  , om.outlier_threshold
+  , om.total_members
 from {{ ref('outliers__int_all_claims_agg') }} aca
 inner join {{ ref('outliers__int_outlier_members') }} om
   on aca.member_id = om.member_id
