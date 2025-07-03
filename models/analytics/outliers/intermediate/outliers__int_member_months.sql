@@ -3,6 +3,14 @@
    )
 }}
 
+with avg_risk_score_by_year as (
+  select
+    payment_year
+  , avg(v24_risk_score) as annual_avg_risk_score
+  from {{ ref('cms_hcc__patient_risk_scores_monthly') }}
+  group by payment_year
+)
+
 select
     mm.person_id
   , mm.member_id
@@ -21,10 +29,6 @@ left join {{ ref('core__patient') }} pt
   on mm.person_id = pt.person_id
 left join {{ ref('cms_hcc__patient_risk_scores') }} rsk
   on mm.person_id = rsk.person_id
-left join (
-  select payment_year, avg(v24_risk_score) as annual_avg_risk_score
-  from {{ ref('cms_hcc__patient_risk_scores_monthly') }}
-  group by payment_year
-) avg
+left join avg_risk_score_by_year avg
   on rsk.payment_year = avg.payment_year
 order by member_id

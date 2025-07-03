@@ -3,7 +3,19 @@
    )
 }}
 
-select *
+select
+    person_id
+  , member_id
+  , year
+  , year_month
+  , sex
+  , race
+  , state
+  , age
+  , age_group
+  , payment_year
+  , v24_risk_score
+  , population_normalized_risk_score
 from {{ ref('outliers__int_member_months') }}
 where member_id in (
   select distinct member_id

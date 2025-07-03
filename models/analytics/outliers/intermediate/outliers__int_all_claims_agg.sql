@@ -55,7 +55,7 @@ with all_claims as (
     , null as atc_3_name
     , null as atc_4_code
     , null as atc_4_name
-  from {{ ref('outliers__stg_medical_claims') }}
+  from {{ ref('outliers__int_medical_claims') }}
 
   union all
 
@@ -110,7 +110,7 @@ with all_claims as (
     , atc_3_name
     , atc_4_code
     , atc_4_name
-  from {{ ref('outliers__stg_rx_claims') }}
+  from {{ ref('outliers__int_rx_claims') }}
 )
 
 select

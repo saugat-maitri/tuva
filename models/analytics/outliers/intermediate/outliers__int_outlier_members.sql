@@ -4,20 +4,25 @@
 }}
 
 with member_paid_by_year as (
-  select member_id, incr_year, sum(paid_amount) as paid
+  select
+    member_id
+  , incr_year
+  , sum(paid_amount) as paid
   from {{ ref('outliers__int_all_claims_agg') }}
   group by member_id, incr_year
-),
-stats_by_year as (
-  select
-      incr_year
-    , sum(paid) as total_paid
-    , avg(paid) as mean_paid
-    , stddev(paid) as stddev_paid
-    , count(distinct member_id) as total_members
-  from member_paid_by_year
-  group by incr_year
 )
+
+, stats_by_year as (
+    select
+        incr_year
+      , sum(paid) as total_paid
+      , avg(paid) as mean_paid
+      , stddev(paid) as stddev_paid
+      , count(distinct member_id) as total_members
+    from member_paid_by_year
+    group by incr_year
+)
+
 select
     mpby.member_id
   , mpby.incr_year
@@ -32,5 +37,6 @@ select
       else 'NORMAL'
     end as outlier_flag
 from member_paid_by_year mpby
-left join stats_by_year sby on mpby.incr_year = sby.incr_year
+left join stats_by_year sby 
+  on mpby.incr_year = sby.incr_year
 order by mpby.paid desc

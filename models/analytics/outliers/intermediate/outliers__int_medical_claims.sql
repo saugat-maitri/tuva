@@ -9,12 +9,12 @@ select
   , clm.claim_type
   , clm.person_id
   , clm.member_id
-  , clm.claim_start_date as incr_date
+  , clm.incr_date
   , clm.paid_date
-  , cast({{ date_part("month", "clm.claim_start_date") }} as {{ dbt.type_string() }}) as incr_month
-  , cast({{ date_part("month", "clm.paid_date") }} as {{ dbt.type_string() }}) as paid_month
-  , cast({{ date_part("year", "clm.claim_start_date") }} as {{ dbt.type_string() }}) as incr_year
-  , cast({{ date_part("year", "clm.paid_date") }} as {{ dbt.type_string() }}) as paid_year
+  , clm.incr_month
+  , clm.paid_month
+  , clm.incr_year
+  , clm.paid_year
   , ccsr.normalized_code as dx_code
   , ccsr.code_description as dx_description
   , ccsr.body_system as dx_ccsr_category1
@@ -25,10 +25,10 @@ select
   , clm.service_category_1
   , clm.service_category_2
   , clm.service_category_3
-  , case when clm.drg_code_type = 'ms-drg' then clm.drg_code end as ms_drg_code
-  , case when clm.drg_code_type = 'ms-drg' then clm.drg_description end as ms_drg_description
-  , case when clm.drg_code_type = 'apr-drg' then clm.drg_code end as apr_drg_code
-  , case when clm.drg_code_type = 'apr-drg' then clm.drg_description end as apr_drg_description
+  , clm.ms_drg_code
+  , clm.ms_drg_description
+  , clm.apr_drg_code
+  , clm.apr_drg_description
   , clm.revenue_center_code
   , clm.revenue_center_description
   , clm.hcpcs_code
@@ -37,7 +37,7 @@ select
   , rbcs_family_desc
   , clm.paid_amount
   , clm.rendering_id
-from {{ ref('core__medical_claim') }} clm
+from {{ ref('outliers__stg_core__medical_claim') }} clm
 left join {{ ref('ccsr__long_condition_category') }} ccsr
   on clm.claim_id = ccsr.claim_id
  and clm.person_id = ccsr.person_id

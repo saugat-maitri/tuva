@@ -4,7 +4,31 @@
 }}
 
 select
-    aca.*
+    aca.claim_type
+  , aca.member_id
+  , aca.incr_month
+  , aca.incr_year
+  , aca.dx_code
+  , aca.dx_description
+  , aca.dx_ccsr_category1
+  , aca.dx_ccsr_category2
+  , aca.encounter_id
+  , aca.encounter_type
+  , aca.encounter_group
+  , aca.service_category_1
+  , aca.service_category_2
+  , aca.service_category_3
+  , aca.ms_drg_code
+  , aca.ms_drg_description
+  , aca.apr_drg_code
+  , aca.apr_drg_description
+  , aca.revenue_center_code
+  , aca.revenue_center_description
+  , aca.hcpcs_code
+  , aca.rbcs_cat_desc
+  , aca.rbcs_subcat_desc
+  , aca.rbcs_family_desc
+  , aca.paid_amount
   , om.total_paid
   , om.outlier_threshold
   , om.total_members

@@ -21,8 +21,8 @@ select
   , rx.days_supply
   , rx.refills
   , rx.paid_amount
-  , rx.prescribing_provider_id as prescriber_npi
-  , rx.dispensing_provider_id as dispensing_npi
+  , rx.prescriber_npi
+  , rx.dispensing_npi
   , rx2.rxcui as rx_norm_code
   , atc.rxnorm_description as rxnorm_description
   , atc.atc_1_code
@@ -33,7 +33,7 @@ select
   , atc.atc_3_name
   , atc.atc_4_code
   , atc.atc_4_name
-from {{ ref('core__pharmacy_claim') }} rx
+from {{ ref('outliers__stg_core__pharmacy_claim') }} rx
 left join {{ ref('pharmacy__pharmacy_claim_expanded') }} rx2
   on rx.claim_id = rx2.claim_id
  and rx.claim_line_number = rx2.claim_line_number

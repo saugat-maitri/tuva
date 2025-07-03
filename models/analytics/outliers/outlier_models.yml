@@ -1,6 +1,7 @@
 version: 2
 
 models:
+## Final
   - name: outliers__outlier_claims_agg
     description: Contains claims data of members who are flagged as outliers.
     config:
@@ -111,6 +112,8 @@ models:
         description: Version 24 risk score for the patient.
       - name: population_normalized_risk_score
         description: Risk score normalized by the population annual average for the payment year.
+
+## Intermediate
   - name: outliers__int_all_claims_agg
     config:
       schema: |
@@ -118,6 +121,7 @@ models:
         {% else %}outliers{%- endif -%}
       alias: _int_all_claims_agg
       tags: outliers
+      materialized: view
     description: Aggregated claims data combining medical and pharmacy claims for outlier analysis.
     columns:
       - name: claim_type
@@ -182,6 +186,7 @@ models:
         {% else %}outliers{%- endif -%}
       alias: _int_member_months
       tags: outliers
+      materialized: view
     description: Intermediate model joining member months, patient demographics, and risk scores with population normalization.
     columns:
       - name: person_id
@@ -243,12 +248,168 @@ models:
         description: Total paid amount for all members in the year.
       - name: outlier_flag
         description: "'OUTLIER' if paid > threshold, else 'NORMAL'."
-  - name: outliers__stg_rx_claims
+  - name: outliers__int_rx_claims
+    config:
+      schema: |
+        {%- if var('tuva_schema_prefix',None) != None -%}{{var('tuva_schema_prefix')}}_outliers
+        {% else %}outliers{%- endif -%}
+      alias: _int_rx_claims
+      tags: outliers
+      materialized: view
+    description: Enriches pharmacy claims with RxNorm and ATC classification details for each claim line.
+    columns:
+      - name: claim_id
+        description: Unique identifier for the claim.
+      - name: claim_line_number
+        description: Unique line number within the claim.
+      - name: claim_type
+        description: >
+          Indicates whether the claim is professional (CMS-1500), 
+          institutional (UB-04), dental, or vision.
+      - name: person_id
+        description: Unique identifier for each patient.
+      - name: member_id
+        description: >
+          Identifier that links a patient to a particular insurance product or 
+          health plan. A patient can have more than one member_id because they 
+          can have more than one insurance product/plan.
+      - name: incr_date
+        description: Incurred date of the claim.
+      - name: paid_date
+        description: Date the claim was paid.
+      - name: incr_month
+        description: Month when the claim was incurred.
+      - name: paid_month
+        description: Month when the claim was paid.
+      - name: incr_year
+        description: Incurred year (year the claim or payment was incurred).
+      - name: paid_year
+        description: Year the claim was paid.
+      - name: ndc_code
+        description: National Drug Code for the dispensed drug.
+      - name: ndc_description
+        description: Description of the NDC code.
+      - name: quantity
+        description: Quantity dispensed.
+      - name: days_supply
+        description: Number of days supplied.
+      - name: refills
+        description: Number of refills.
+      - name: paid_amount
+        description: Total paid amount for the claim line.
+      - name: prescriber_npi
+        description: NPI of the prescribing provider.
+      - name: dispensing_npi
+        description: NPI of the dispensing provider.
+      - name: rx_norm_code
+        description: RxNorm concept unique identifier (RXCUI).
+      - name: rxnorm_description
+        description: Description for the RxNorm code.
+      - name: atc_1_code
+        description: ATC level 1 code.
+      - name: atc_1_name
+        description: ATC level 1 name.
+      - name: atc_2_code
+        description: ATC level 2 code.
+      - name: atc_2_name
+        description: ATC level 2 name.
+      - name: atc_3_code
+        description: ATC level 3 code.
+      - name: atc_3_name
+        description: ATC level 3 name.
+      - name: atc_4_code
+        description: ATC level 4 code.
+      - name: atc_4_name
+        description: ATC level 4 name.
+  - name: outliers__int_medical_claims
+    config:
+      schema: |
+        {%- if var('tuva_schema_prefix',None) != None -%}{{var('tuva_schema_prefix')}}_outliers
+        {% else %}outliers{%- endif -%}
+      alias: _int_medical_claims
+      tags: outliers
+      materialized: view
+    description: Enriches medical claims with diagnosis, service, and revenue category details for each claim line.
+    columns:
+      - name: claim_id
+        description: Unique identifier for the claim.
+      - name: claim_line_number
+        description: Unique line number within the claim.
+      - name: claim_type
+        description: >
+          Indicates whether the claim is professional (CMS-1500), 
+          institutional (UB-04), dental, or vision.
+      - name: person_id
+        description: Unique identifier for each patient.
+      - name: member_id
+        description: >
+          Identifier that links a patient to a particular insurance product or 
+          health plan. A patient can have more than one member_id because they 
+          can have more than one insurance product/plan.
+      - name: incr_date
+        description: Incurred date of the claim.
+      - name: paid_date
+        description: Date the claim was paid.
+      - name: incr_month
+        description: Month when the claim was incurred.
+      - name: paid_month
+        description: Month when the claim was paid.
+      - name: incr_year
+        description: Incurred year (year the claim or payment was incurred).
+      - name: paid_year
+        description: Year the claim was paid.
+      - name: dx_code
+        description: Diagnosis code associated with the claim.
+      - name: dx_description
+        description: Description of the diagnosis code.
+      - name: dx_ccsr_category1
+        description: CCSR body system category for the diagnosis.
+      - name: dx_ccsr_category2
+        description: CCSR category description for the diagnosis.
+      - name: encounter_id
+        description: Unique identifier for the encounter.
+      - name: encounter_type
+        description: Type of encounter.
+      - name: encounter_group
+        description: Group classification for the encounter.
+      - name: service_category_1
+        description: The first service category of the claim line.
+      - name: service_category_2
+        description: The second, more specific service category of the claim line.
+      - name: service_category_3
+        description: The third, even more specific service category of the claim line.
+      - name: ms_drg_code
+        description: The Medicare Severity Diagnosis Related Group (MS-DRG) code.
+      - name: ms_drg_description
+        description: Description for the MS-DRG code.
+      - name: apr_drg_code
+        description: The All Patient Refined Diagnosis Related Group (APR-DRG) code.
+      - name: apr_drg_description
+        description: Description for the APR-DRG code.
+      - name: revenue_center_code
+        description: Revenue center code for the claim.
+      - name: revenue_center_description
+        description: Description of the revenue center code.
+      - name: hcpcs_code
+        description: HCPCS level 1 or level 2 code for the claim line.
+      - name: rbcs_cat_desc
+        description: RBCS category description.
+      - name: rbcs_subcat_desc
+        description: RBCS subcategory description.
+      - name: rbcs_family_desc
+        description: RBCS family description.
+      - name: paid_amount
+        description: Total paid amount for the claim line.
+      - name: rendering_id
+        description: Identifier for the rendering provider.
+
+## Staging
+  - name: outliers__stg_core__pharmacy_claim
     description: Staging pharmacy claims from core pharmacy claims table.
     config:
       tags: outliers
       materialized: ephemeral
-  - name: outliers__stg_medical_claims
+  - name: outliers__stg_core__medical_claim
     description: Staging medical claims from core medical claims table.
     config:
       tags: outliers
